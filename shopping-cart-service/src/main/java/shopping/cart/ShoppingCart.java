@@ -28,7 +28,7 @@ public final class ShoppingCart
   /**
    * This interface defines all the commands (messages) that the ShoppingCart actor supports.
    */
-  interface Command extends CborSerializable {}
+  sealed interface Command extends CborSerializable {}
 
   /**
    * A command to add an item to the cart.
@@ -36,24 +36,13 @@ public final class ShoppingCart
    * <p>It replies with `StatusReply&lt;Summary&gt;`, which is sent back to the caller when all the
    * events emitted by this command are successfully persisted.
    */
-  public static final class AddItem implements Command {
-    final String itemId;
-    final int quantity;
-    final ActorRef<StatusReply<Summary>> replyTo;
-
-    public AddItem(String itemId, int quantity, ActorRef<StatusReply<Summary>> replyTo) {
-      this.itemId = itemId;
-      this.quantity = quantity;
-      this.replyTo = replyTo;
-    }
-  }
+  public record AddItem(String itemId, int quantity,
+                        ActorRef<StatusReply<Summary>> replyTo) implements Command {}
 
   /**
    * Summary of the shopping cart state, used in reply messages.
    */
-  public static final class Summary implements CborSerializable {
-    final Map<String, Integer> items;
-
+  public record Summary(Map<String, Integer> items) implements CborSerializable {
     @JsonCreator
     public Summary(Map<String, Integer> items) {
       // defensive copy since items is a mutable object
@@ -65,44 +54,11 @@ public final class ShoppingCart
   // Event
   ///////////////////////////////////////////////////////////////////////
 
-  abstract static class Event implements CborSerializable {
-    public final String cartId;
-
-    public Event(String cartId) {
-      this.cartId = cartId;
-    }
+  sealed interface Event extends CborSerializable {
+    String cartId();
   }
 
-  static final class ItemAdded extends Event {
-    public final String itemId;
-    public final int quantity;
-
-    public ItemAdded(String cartId, String itemId, int quantity) {
-      super(cartId);
-      this.itemId = itemId;
-      this.quantity = quantity;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-
-      ItemAdded other = (ItemAdded) o;
-
-      if (quantity != other.quantity) return false;
-      if (!cartId.equals(other.cartId)) return false;
-      return itemId.equals(other.itemId);
-    }
-
-    @Override
-    public int hashCode() {
-      int result = cartId.hashCode();
-      result = 31 * result + itemId.hashCode();
-      result = 31 * result + quantity;
-      return result;
-    }
-  }
+  record ItemAdded(String cartId, String itemId, int quantity) implements Event {}
 
   ///////////////////////////////////////////////////////////////////////
   // State

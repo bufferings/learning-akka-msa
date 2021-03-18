@@ -45,7 +45,7 @@ public final class ShoppingCartServiceImpl implements ShoppingCartService {
 
   private static Cart toProtoCart(ShoppingCart.Summary cart) {
     List<Item> protoItems =
-        cart.items.entrySet().stream()
+        cart.items().entrySet().stream()
             .map(
                 entry ->
                     Item.newBuilder()
