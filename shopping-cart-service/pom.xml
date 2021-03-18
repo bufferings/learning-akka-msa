@@ -196,6 +196,7 @@
                     <source>16</source>
                     <target>16</target>
                     <compilerArgs>
+                        <arg>-Xlint:unchecked</arg>
                         <arg>-Xlint:deprecation</arg>
                         <arg>-parameters</arg>
                         <arg>--enable-preview</arg>
