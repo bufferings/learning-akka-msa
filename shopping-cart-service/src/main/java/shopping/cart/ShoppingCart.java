@@ -158,18 +158,18 @@ public final class ShoppingCart
   }
 
   private ReplyEffect<Event, State> onAddItem(State state, AddItem cmd) {
-    if (state.hasItem(cmd.itemId)) {
+    if (state.hasItem(cmd.itemId())) {
       return Effect()
           .reply(
-              cmd.replyTo,
+              cmd.replyTo(),
               StatusReply.error(
-                  "Item '" + cmd.itemId + "' was already added to this shopping cart"));
-    } else if (cmd.quantity <= 0) {
-      return Effect().reply(cmd.replyTo, StatusReply.error("Quantity must be greater than zero"));
+                  "Item '" + cmd.itemId() + "' was already added to this shopping cart"));
+    } else if (cmd.quantity() <= 0) {
+      return Effect().reply(cmd.replyTo(), StatusReply.error("Quantity must be greater than zero"));
     } else {
       return Effect()
-          .persist(new ItemAdded(cartId, cmd.itemId, cmd.quantity))
-          .thenReply(cmd.replyTo, updatedCart -> StatusReply.success(updatedCart.toSummary()));
+          .persist(new ItemAdded(cartId, cmd.itemId(), cmd.quantity()))
+          .thenReply(cmd.replyTo(), updatedCart -> StatusReply.success(updatedCart.toSummary()));
     }
   }
 
@@ -181,7 +181,7 @@ public final class ShoppingCart
   public EventHandler<State, Event> eventHandler() {
     return newEventHandlerBuilder()
         .forAnyState()
-        .onEvent(ItemAdded.class, (state, evt) -> state.updateItem(evt.itemId, evt.quantity))
+        .onEvent(ItemAdded.class, (state, evt) -> state.updateItem(evt.itemId(), evt.quantity()))
         .build();
   }
 }
