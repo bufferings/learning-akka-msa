@@ -195,7 +195,7 @@
                 <configuration>
                     <source>16</source>
                     <target>16</target>
-                    <compilerArgs>--enable-preview
+                    <compilerArgs>
                         <arg>-Xlint:deprecation</arg>
                         <arg>-parameters</arg>
                         <arg>--enable-preview</arg>
